@@ -1,7 +1,53 @@
 rules:
-  - id: python-test-rule
+  # Detect usage of eval() — può eseguire codice arbitrario
+  - id: python-eval
     patterns:
-      - pattern: "assert True"
-    message: "Found a test assert"
+      - pattern: eval(...)
+    message: "Uso di eval() rilevato: attenzione a possibili esecuzioni arbitrarie"
+    languages: [python]
+    severity: ERROR
+
+  # Detect insecure use of subprocess without shell=False
+  - id: python-subprocess-shell
+    patterns:
+      - pattern: subprocess.Popen(..., shell=True)
+    message: "Uso di subprocess con shell=True: rischio di command injection"
+    languages: [python]
+    severity: ERROR
+
+  # Detect hard-coded secrets
+  - id: python-hardcoded-secret
+    patterns:
+      - pattern-regex: "['\"](password|secret|token)['\"]\s*[:=]\s*['\"].+['\"]"
+    message: "Possibile secret hardcoded nel codice"
+    languages: [python]
+    severity: WARNING
+
+  # Detect use of assert statements in production code
+  - id: python-assert
+    patterns:
+      - pattern: assert ...
+    message: "Uso di assert in codice di produzione"
     languages: [python]
     severity: INFO
+
+  # Detect bare except clauses
+  - id: python-bare-except
+    patterns:
+      - pattern: |
+          try:
+            ...
+          except:
+            ...
+    message: "Cattura eccezioni generiche senza specificare il tipo"
+    languages: [python]
+    severity: WARNING
+
+  # Detect use of pickle.loads / pickle.load — potenziale rischio di RCE
+  - id: python-pickle
+    patterns:
+      - pattern: pickle.load(...)
+      - pattern: pickle.loads(...)
+    message: "Uso di pickle.load/loads: attenzione a possibili esecuzioni arbitrarie"
+    languages: [python]
+    severity: ERROR
