@@ -1,7 +1,0 @@
-rules:
-  - id: python-test-rule
-    patterns:
-      - pattern: "assert True"
-    message: "Found a test assert"
-    languages: [python]
-    severity: INFO
