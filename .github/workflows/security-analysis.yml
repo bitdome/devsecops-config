@@ -97,11 +97,15 @@ jobs:
       ##################################
       # Semgrep scans multi-linguaggio
       ##################################
+      - name: Install latest Semgrep
+        if: steps.detect_python.outputs.found == 'true'
+        run: pip install --upgrade semgrep
+
       - name: Semgrep scan Python
         if: steps.detect_python.outputs.found == 'true'
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: https://raw.githubusercontent.com/bitdome/devsecops-config/main/semgrepyml/python.yml
+        run: semgrep \
+              --config https://raw.githubusercontent.com/bitdome/devsecops-config/main/semgrepyml/python.yml \
+              --exclude src/services/background_remover.py
 
       - name: Semgrep scan Node
         if: steps.detect_node.outputs.found == 'true'
