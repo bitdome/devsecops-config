@@ -103,9 +103,7 @@ jobs:
 
       - name: Semgrep scan Python
         if: steps.detect_python.outputs.found == 'true'
-        run: semgrep \
-              --config https://raw.githubusercontent.com/bitdome/devsecops-config/main/semgrepyml/python.yml \
-              --exclude src/services/background_remover.py
+        run: semgrep --config https://raw.githubusercontent.com/bitdome/devsecops-config/main/semgrepyml/python.yml --exclude src/services/background_remover.py
 
       - name: Semgrep scan Node
         if: steps.detect_node.outputs.found == 'true'
