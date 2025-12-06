@@ -16,13 +16,14 @@ rules:
     severity: ERROR
 
   # Detect hard-coded secrets
-  - id: python-hardcoded-secret
-    patterns:
-      - pattern-regex: |
-          ["'](password|secret|token)["']\s*[:=]\s*["'].*["']
-    message: "Possibile secret hardcoded nel codice"
-    languages: [python]
-    severity: WARNING
+- id: python-hardcoded-secret
+  patterns:
+    - pattern-regex: |
+        ["'](password|secret|token)["']\s*[:=]\s*["'].*["']
+  message: "Possibile secret hardcoded nel codice"
+  languages:
+    - python
+  severity: WARNING
 
   # Detect use of assert statements in production code
   - id: python-assert
