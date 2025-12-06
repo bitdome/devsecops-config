@@ -1,0 +1,12 @@
+rules:
+  - id: no-eval
+    patterns:
+      - pattern: eval(...)
+    message: "Pericolo: eval può causare RCE"
+    severity: ERROR
+    languages: [javascript, typescript]
+  - id: insecure-http
+    pattern: http.get(...)
+    message: "HTTP insicuro: usa HTTPS"
+    severity: WARNING
+    languages: [javascript, typescript]

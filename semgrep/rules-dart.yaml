@@ -1,0 +1,11 @@
+rules:
+  - id: insecure-http-dart
+    languages: [dart]
+    pattern: http.Client().get("http://...")
+    message: "HTTP insicuro: usa HTTPS"
+    severity: WARNING
+  - id: weak-random
+    pattern: Random()
+    languages: [dart]
+    message: "Random() non sicuro per funzioni critiche"
+    severity: ERROR
