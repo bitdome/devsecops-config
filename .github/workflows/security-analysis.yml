@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      ##################################
+      # Checkout
+      ##################################
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -65,7 +68,7 @@ jobs:
           if [ -d tests ]; then pytest; fi
 
       ##################################
-      # Node Setup & ESLint
+      # Node/TypeScript Setup & Analysis
       ##################################
       - name: Setup Node
         if: steps.detect_node.outputs.found == 'true'
@@ -77,9 +80,17 @@ jobs:
         if: steps.detect_node.outputs.found == 'true'
         run: npm install
 
-      - name: Run ESLint Security
+      - name: ESLint Check
         if: steps.detect_node.outputs.found == 'true'
-        run: npx eslint . || true
+        run: npx eslint . --ext .ts,.tsx || true
+
+      - name: Node Security Audit
+        if: steps.detect_node.outputs.found == 'true'
+        run: npm audit --audit-level=moderate || true
+
+      - name: Semgrep scan TypeScript
+        if: steps.detect_node.outputs.found == 'true'
+        run: semgrep --config=https://semgrep.dev/p/typescript
 
       ##################################
       # Dart/Flutter Setup & Analysis
@@ -97,14 +108,17 @@ jobs:
       - name: Dart Analyze + Metrics
         if: steps.detect_dart.outputs.found == 'true'
         run: |
-          # Analisi statica standard
           flutter analyze
-
-          # Dart Code Metrics
           dart run dart_code_metrics:metrics analyze lib test --reporter=console
 
+      - name: Semgrep scan Dart
+        if: steps.detect_dart.outputs.found == 'true'
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: https://raw.githubusercontent.com/bitdome/devsecops-config/main/semgrepyml/rules-dart.yaml
+
       ##################################
-      # Semgrep scans multi-linguaggio
+      # Semgrep Python
       ##################################
       - name: Install latest Semgrep
         if: steps.detect_python.outputs.found == 'true'
@@ -114,14 +128,11 @@ jobs:
         if: steps.detect_python.outputs.found == 'true'
         run: semgrep --config https://raw.githubusercontent.com/bitdome/devsecops-config/main/semgrepyml/python.yml --exclude src/services/background_remover.py
 
-      - name: Semgrep scan Node
+      ##################################
+      # Semgrep Node (optional, aggiuntivo)
+      ##################################
+      - name: Semgrep scan Node (extra)
         if: steps.detect_node.outputs.found == 'true'
         uses: returntocorp/semgrep-action@v1
         with:
           config: https://raw.githubusercontent.com/bitdome/devsecops-config/main/semgrepyml/rules-node.yaml
-
-      - name: Semgrep scan Dart
-        if: steps.detect_dart.outputs.found == 'true'
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: https://raw.githubusercontent.com/bitdome/devsecops-config/main/semgrepyml/rules-dart.yaml
