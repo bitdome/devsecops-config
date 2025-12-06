@@ -18,7 +18,7 @@ rules:
   # Detect hard-coded secrets
   - id: python-hardcoded-secret
     patterns:
-      - pattern-regex: '["\'](password|secret|token)["\']\s*[:=]\s*["\'].*["\']'
+      - pattern-regex: "[\"'](password|secret|token)[\"']\\s*[:=]\\s*[\"'].*[\"']"
     message: "Possibile secret hardcoded nel codice"
     languages: [python]
     severity: WARNING
