@@ -45,7 +45,7 @@ jobs:
           fi
 
       ##################################
-      # Python Setup
+      # Python Setup & Tests
       ##################################
       - name: Setup Python
         if: steps.detect_python.outputs.found == 'true'
@@ -65,7 +65,7 @@ jobs:
           if [ -d tests ]; then pytest; fi
 
       ##################################
-      # Node Setup
+      # Node Setup & ESLint
       ##################################
       - name: Setup Node
         if: steps.detect_node.outputs.found == 'true'
@@ -95,9 +95,22 @@ jobs:
         run: flutter pub get
 
       ##################################
-      # Semgrep (unified)
+      # Semgrep scans multi-linguaggio
       ##################################
-      - name: Semgrep scan
+      - name: Semgrep scan Python
+        if: steps.detect_python.outputs.found == 'true'
         uses: returntocorp/semgrep-action@v1
         with:
           config: https://raw.githubusercontent.com/bitdome/devsecops-config/main/semgrepyml/python.yml
+
+      - name: Semgrep scan Node
+        if: steps.detect_node.outputs.found == 'true'
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: https://raw.githubusercontent.com/bitdome/devsecops-config/main/semgrepyml/rules-node.yaml
+
+      - name: Semgrep scan Dart
+        if: steps.detect_dart.outputs.found == 'true'
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: https://raw.githubusercontent.com/bitdome/devsecops-config/main/semgrepyml/rules-dart.yaml
