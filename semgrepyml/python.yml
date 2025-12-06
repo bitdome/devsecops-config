@@ -36,7 +36,7 @@ rules:
       - python
     severity: INFO
 
-  # Detect bare except clauses
+  # Detect bare except clauses (cattura eccezioni generiche)
   - id: python-bare-except
     patterns:
       - pattern: |
@@ -47,7 +47,7 @@ rules:
     message: "Cattura eccezioni generiche senza specificare il tipo"
     languages:
       - python
-    severity: WARNING
+    severity: WARNING  # cambiato da ERROR a WARNING
 
   # Detect use of pickle.loads / pickle.load — potenziale rischio di RCE
   - id: python-pickle
