@@ -1,0 +1,103 @@
+name: DevSecOps Unified Analysis
+
+on:
+  workflow_call:
+
+jobs:
+  security-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      ##################################
+      # Detect Python
+      ##################################
+      - id: detect_python
+        run: |
+          if [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      ##################################
+      # Detect Node
+      ##################################
+      - id: detect_node
+        run: |
+          if [ -f "package.json" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      ##################################
+      # Detect Flutter/Dart
+      ##################################
+      - id: detect_dart
+        run: |
+          if [ -f "pubspec.yaml" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      ##################################
+      # Python Setup
+      ##################################
+      - name: Setup Python
+        if: steps.detect_python.outputs.found == 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Python dependencies
+        if: steps.detect_python.outputs.found == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Python Tests
+        if: steps.detect_python.outputs.found == 'true'
+        run: |
+          if [ -d tests ]; then pytest; fi
+
+      ##################################
+      # Node Setup
+      ##################################
+      - name: Setup Node
+        if: steps.detect_node.outputs.found == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node dependencies
+        if: steps.detect_node.outputs.found == 'true'
+        run: npm install
+
+      - name: Run ESLint Security
+        if: steps.detect_node.outputs.found == 'true'
+        run: npx eslint . || true
+
+      ##################################
+      # Dart/Flutter Setup
+      ##################################
+      - name: Setup Flutter
+        if: steps.detect_dart.outputs.found == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.16.9'
+
+      - name: Install Flutter dependencies
+        if: steps.detect_dart.outputs.found == 'true'
+        run: flutter pub get
+
+      ##################################
+      # Semgrep (unified)
+      ##################################
+      - name: Semgrep scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: semgrepyml
