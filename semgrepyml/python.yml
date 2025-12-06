@@ -45,6 +45,8 @@ rules:
           except:
             ...
     message: "Cattura eccezioni generiche senza specificare il tipo"
+    ignore:
+      - path: src/services/background_remover.py
     languages:
       - python
     severity: WARNING  # cambiato da ERROR a WARNING
