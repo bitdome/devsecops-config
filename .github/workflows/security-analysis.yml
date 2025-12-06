@@ -82,7 +82,7 @@ jobs:
         run: npx eslint . || true
 
       ##################################
-      # Dart/Flutter Setup
+      # Dart/Flutter Setup & Analysis
       ##################################
       - name: Setup Flutter
         if: steps.detect_dart.outputs.found == 'true'
@@ -93,6 +93,15 @@ jobs:
       - name: Install Flutter dependencies
         if: steps.detect_dart.outputs.found == 'true'
         run: flutter pub get
+
+      - name: Dart Analyze + Metrics
+        if: steps.detect_dart.outputs.found == 'true'
+        run: |
+          # Analisi statica standard
+          flutter analyze
+
+          # Dart Code Metrics
+          dart run dart_code_metrics:metrics analyze lib test --reporter=console
 
       ##################################
       # Semgrep scans multi-linguaggio
